@@ -1,11 +1,9 @@
 import {
   Body,
   Controller,
-  Get,
   Post,
   Req,
   Res,
-  UseGuards,
   HttpCode,
   HttpStatus,
   UnauthorizedException,
@@ -13,11 +11,8 @@ import {
 import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '@/modules/auth/auth.service';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 import { RegisterDto } from '@/modules/auth/dto/register.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
-import { CurrentUser } from '@/modules/auth/decorators/current-user.decorator';
-import type { CurrentUserPayload } from '@/modules/auth/strategies/jwt.strategy';
 
 const REFRESH_COOKIE_NAME = 'refresh_token';
 
@@ -77,11 +72,5 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/auth',
     });
-  }
-
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  me(@CurrentUser() user: CurrentUserPayload) {
-    return user;
   }
 }
