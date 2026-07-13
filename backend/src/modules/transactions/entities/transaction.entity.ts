@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne, JoinColumn, Index, Check } from 'typeorm';
-import { CoreEntity } from '@/common/entities/core.entity';
-import { Account } from '@/modules/accounts/entities/account.entity';
+import { CoreEntity } from '@common/entities/core.entity';
+import { Account } from '@modules/accounts/entities/account.entity';
 
 export enum TransactionType {
   DEPOSIT = 'deposit',
