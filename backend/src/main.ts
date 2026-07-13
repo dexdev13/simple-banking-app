@@ -1,17 +1,31 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
+// import { TransformInterceptor } from '@common/interceptors/transform.interceptor';
+// import { AllExceptionsFilter } from '@common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api');
   // app.enableVersioning({ type: VersioningType.URI });
 
-  app.use(cookieParser());
+  // Cookie parser
+  app.use(cookieParser()); // must be before global filters/interceptors/pipes
 
+  // ExceptionFilter global
+  // app.useGlobalFilters(new AllExceptionsFilter()); // catch error from pipe, guard, interceptor
+
+  // Interceptor global
+  const reflector = app.get(Reflector);
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(reflector), // strip @Exclude()
+    // new TransformInterceptor(reflector), // wrap ApiResponse shape
+  );
+
+  // ValidationPipe global - validate request body
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -21,8 +35,8 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: 'http://localhost:5173', // origin của frontend Vite dev server
-    credentials: true, // bắt buộc true để cookie (refresh token) được gửi kèm request
+    origin: 'http://localhost:5173',
+    credentials: true,
   });
 
   const config = new DocumentBuilder()

@@ -7,7 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { AccountsModule } from './modules/accounts/accounts.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
-import jwtConfig from '@/config/jwt.config';
+import jwtConfig from '@config/jwt.config';
 
 @Module({
   imports: [

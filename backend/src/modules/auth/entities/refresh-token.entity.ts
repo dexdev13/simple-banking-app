@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
-import { CoreEntity } from '@/common/entities/core.entity';
-import { User } from '@/modules/users/entities/user.entity';
+import { CoreEntity } from '@common/entities/core.entity';
+import { User } from '@modules/users/entities/user.entity';
 
 @Entity('refresh_tokens')
 @Index('idx_refresh_tokens_user_id', ['userId'])

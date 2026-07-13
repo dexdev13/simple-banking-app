@@ -10,9 +10,9 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
-import { AuthService } from '@/modules/auth/auth.service';
-import { RegisterDto } from '@/modules/auth/dto/register.dto';
-import { LoginDto } from '@/modules/auth/dto/login.dto';
+import { AuthService } from '@modules/auth/auth.service';
+import { RegisterDto } from '@modules/auth/dto/register.dto';
+import { LoginDto } from '@modules/auth/dto/login.dto';
 
 const REFRESH_COOKIE_NAME = 'refresh_token';
 
@@ -69,8 +69,8 @@ export class AuthController {
       httpOnly: true,
       secure: this.configService.get<string>('COOKIE_SECURE') === 'true',
       sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: '/auth',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      path: '/api/auth',
     });
   }
 }

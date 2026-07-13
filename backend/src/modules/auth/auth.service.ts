@@ -5,21 +5,20 @@ import { JwtService } from '@nestjs/jwt';
 import type { ConfigType } from '@nestjs/config';
 import { compare, hash } from 'bcrypt';
 import { createHash, randomBytes } from 'node:crypto';
-import { User, UserRole, UserStatus } from '@/modules/users/entities/user.entity';
-import { Account, AccountStatus } from '@/modules/accounts/entities/account.entity';
-import { RefreshToken } from '@/modules/auth/entities/refresh-token.entity';
-import { RegisterDto } from '@/modules/auth/dto/register.dto';
-import { LoginDto } from '@/modules/auth/dto/login.dto';
-import { JwtPayload } from '@/modules/auth/strategies/jwt.strategy';
+import { User, UserRole, UserStatus } from '@modules/users/entities/user.entity';
+import { Account, AccountStatus } from '@modules/accounts/entities/account.entity';
+import { RefreshToken } from '@modules/auth/entities/refresh-token.entity';
+import { RegisterDto } from '@modules/auth/dto/register.dto';
+import { LoginDto } from '@modules/auth/dto/login.dto';
+import { JwtPayload } from '@common/interfaces/auth.interface';
 import ms from 'ms';
-import jwtConfig from '@/config/jwt.config';
+import jwtConfig from '@config/jwt.config';
+import { isUniqueViolation } from '@common/utils/postgres-error.util';
 
 interface TokenPair {
   accessToken: string;
   refreshToken: string;
 }
-
-const POSTGRES_UNIQUE_VIOLATION = '23505';
 
 @Injectable()
 export class AuthService {
@@ -65,7 +64,7 @@ export class AuthService {
         return { user, account };
       });
     } catch (error) {
-      if (this.isUniqueViolation(error)) {
+      if (isUniqueViolation(error)) {
         throw new ConflictException('Email đã được sử dụng');
       }
       throw error;
@@ -73,7 +72,6 @@ export class AuthService {
   }
 
   async login(dto: LoginDto): Promise<{ user: User; tokens: TokenPair }> {
-    // dto.email đã được @Transform trim + lowercase ở DTO, không cần xử lý lại ở đây.
     const user = await this.userRepository
       .createQueryBuilder('user')
       .addSelect('user.passwordHash')
@@ -112,6 +110,11 @@ export class AuthService {
     await this.refreshTokenRepository.update({ tokenHash }, { revokedAt: new Date() });
   }
 
+  async logoutAll(userId: string): Promise<void> {
+    await this.refreshTokenRepository.update({ userId }, { revokedAt: new Date() });
+  }
+
+  // --- Helpers Methods ---
   private async issueTokens(user: User): Promise<TokenPair> {
     const payload: JwtPayload = { sub: user.id, email: user.email, role: user.role };
     // secret/expiresIn access token đã set default trong JwtModule.registerAsync (auth.module.ts)
@@ -137,14 +140,5 @@ export class AuthService {
 
   private generateAccountNumber(): string {
     return `VN${Date.now()}${Math.floor(Math.random() * 1000)}`;
-  }
-
-  private isUniqueViolation(error: unknown): boolean {
-    return (
-      typeof error === 'object' &&
-      error !== null &&
-      'code' in error &&
-      (error as { code?: string }).code === POSTGRES_UNIQUE_VIOLATION
-    );
   }
 }

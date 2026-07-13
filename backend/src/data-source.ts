@@ -1,9 +1,9 @@
 import 'tsconfig-paths/register';
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
-import { User } from '@/modules/users/entities/user.entity';
-import { Account } from '@/modules/accounts/entities/account.entity';
-import { Transaction } from '@/modules/transactions/entities/transaction.entity';
+import { User } from '@modules/users/entities/user.entity';
+import { Account } from '@modules/accounts/entities/account.entity';
+import { Transaction } from '@modules/transactions/entities/transaction.entity';
 import { RefreshToken } from '@modules/auth/entities/refresh-token.entity';
 
 export const AppDataSource = new DataSource({
