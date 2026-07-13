@@ -10,6 +10,8 @@ import {
 import { AccountsService } from '@modules/accounts/accounts.service';
 import { CreateTransferDto } from '@modules/transactions/dto/create-transfer.dto';
 import { TransactionDto } from '@modules/transactions/dto/transaction.dto';
+import { GetTransactionsQueryDto } from '@modules/transactions/dto/get-transactions-query.dto';
+import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { isUniqueViolation } from '@common/utils/postgres-error.util';
 
 @Injectable()
@@ -105,5 +107,45 @@ export class TransactionsService {
       }
       throw error;
     }
+  }
+
+  async findHistory(
+    userId: string,
+    query: GetTransactionsQueryDto,
+  ): Promise<PaginatedResponseDto<TransactionDto>> {
+    const accountIds = query.accountId
+      ? [(await this.accountsService.findOwnedById(query.accountId, userId)).id]
+      : (await this.accountsService.findAllByUserId(userId)).map((account) => account.id);
+
+    if (accountIds.length === 0) {
+      return PaginatedResponseDto.create([], 0, query.page, query.limit);
+    }
+
+    const qb = this.transactionRepository
+      .createQueryBuilder('transaction')
+      .where(
+        '(transaction.fromAccountId IN (:...accountIds) OR transaction.toAccountId IN (:...accountIds))',
+        { accountIds },
+      );
+
+    if (query.type) {
+      qb.andWhere('transaction.type = :type', { type: query.type });
+    }
+    if (query.status) {
+      qb.andWhere('transaction.status = :status', { status: query.status });
+    }
+
+    const [transactions, total] = await qb
+      .orderBy('transaction.createdAt', 'DESC')
+      .skip((query.page - 1) * query.limit)
+      .take(query.limit)
+      .getManyAndCount();
+
+    return PaginatedResponseDto.create(
+      transactions.map((transaction) => TransactionDto.fromEntity(transaction)),
+      total,
+      query.page,
+      query.limit,
+    );
   }
 }
