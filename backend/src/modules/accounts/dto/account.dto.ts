@@ -1,4 +1,4 @@
-import { Account, AccountStatus } from '@/modules/accounts/entities/account.entity';
+import { Account, AccountStatus } from '@modules/accounts/entities/account.entity';
 
 export class AccountDto {
   id: string;

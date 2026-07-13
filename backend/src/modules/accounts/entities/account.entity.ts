@@ -8,9 +8,9 @@ import {
   Index,
   Check,
 } from 'typeorm';
-import { SoftDeletableEntity } from '@/common/entities/soft-deletable.entity';
-import { User } from '@/modules/users/entities/user.entity';
-import { Transaction } from '@/modules/transactions/entities/transaction.entity';
+import { SoftDeletableEntity } from '@common/entities/soft-deletable.entity';
+import { User } from '@modules/users/entities/user.entity';
+import { Transaction } from '@modules/transactions/entities/transaction.entity';
 
 export enum AccountStatus {
   ACTIVE = 'active',
