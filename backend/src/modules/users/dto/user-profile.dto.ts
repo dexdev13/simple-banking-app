@@ -1,4 +1,4 @@
-import { User, UserRole, UserStatus } from '@/modules/users/entities/user.entity';
+import { User, UserRole, UserStatus } from '@modules/users/entities/user.entity';
 
 export class UserProfileDto {
   id: string;

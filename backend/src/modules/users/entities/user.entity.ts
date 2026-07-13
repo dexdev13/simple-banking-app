@@ -1,7 +1,7 @@
 import { Entity, Column, OneToMany, Index, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { Exclude } from 'class-transformer';
-import { SoftDeletableEntity } from '@/common/entities/soft-deletable.entity';
-import { Account } from '@/modules/accounts/entities/account.entity';
+import { SoftDeletableEntity } from '@common/entities/soft-deletable.entity';
+import { Account } from '@modules/accounts/entities/account.entity';
 
 export enum UserRole {
   CUSTOMER = 'customer',
